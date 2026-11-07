@@ -36,7 +36,7 @@ unsupported — four vendor backends, one verification method.
 | **F2** | Hardware gates — real launches, element-verified on each vendor's silicon | 🔜 per-repo |
 | **F3** | Depth: scanner-ordered opcode census growth | 🔜 |
 | **F4** | Thinness ladder — per-vendor sanctioned ISA floors, engineered and measured | 🟢 shipped: R3 ISA ladder measured; A2/D2 program-binary ISA cache live |
-| **F5** | Performance discipline: GPU-clock A/B vs native baselines | 🔜 |
+| **F5** | Performance discipline vs native baselines — static ISA-proxy gates shipped on all four (metal 1.446x GPU-clock PASS; rocm 1.00x instr-count; arc 1.22x, adreno per-env Op-count); real GPU-clock A/B fires at each hardware gate | 🟢 static shipped |
 | **F6** | Family bridge: one CUDA workload spec → four backends → one verification record | 🔜 |
 
 ## Per-repo phases
@@ -49,6 +49,7 @@ unsupported — four vendor backends, one verification method.
 | M2 | Kernel path: real nvcc fatbins, PTX→MSL (control flow, shared mem, atomics, ISA-exact shuffles), async streams — 14 suites | ✅ |
 | M3 | Bare-metal AOT `.metallib`, 3 ms warm load, SIMD-aligned dispatch, blockDim-as-data, 22-check gate | ✅ |
 | M4 | Thinness ladder: AIR = sanctioned floor (below-AIR ISA is research-only, recorded) | ✅ |
+| M4.5 | Evidence discipline adopted from the competitive analysis: native-Metal perf gate (measured 1.446x, <= 2.0x), GPU-provenance receipts, 10-case negative inventory (found + fixed 2 shim contract gaps: zero-grid, NULL-params) | ✅ |
 | M5 | fp16 kernel path, multi-dim grids, dynamic shared memory | 🔜 |
 | M6 | CI for hardware-free checks | 🔜 |
 
