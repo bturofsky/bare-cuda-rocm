@@ -119,8 +119,10 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the lowering contract and
 
 | Project | Target | Status |
 |---|---|---|
-| [Bare CUDA Metal](https://github.com/bturofsky/bare-cuda-metal) | Apple M1–M5 via Metal, AOT `.metallib` | bitwise-verified vs RTX 8000, 15 acceptance suites |
+| [Bare CUDA Metal](https://github.com/bturofsky/bare-cuda-metal) | Apple M1–M5 via Metal, AOT `.metallib` | bitwise-verified vs RTX 8000, 15 suites, 22-check gate |
 | **Bare CUDA ROCm** (this repo) | AMD MI210 / W7800 / W7900 via LLVM AMDGPU | v0: AOT lane verified through native code objects |
+| [Bare CUDA Arc](https://github.com/bturofsky/bare-cuda-arc) | Intel Arc A770 / B580 / Flex 170 via Khronos-validated SPIR-V | v0: hardware-free SPIR-V AOT lane, 27-check gate |
+| [Bare CUDA Adreno](https://github.com/bturofsky/bare-cuda-adreno) | Qualcomm Adreno 830 / 750 / 740 via per-target-version SPIR-V (v1.5/v1.3 enforced) | v0: hardware-free SPIR-V AOT lane, 28-check gate |
 
 ## Credits & license
 
