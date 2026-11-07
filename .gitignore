@@ -1,0 +1,8 @@
+build/
+.target
+*.o
+*.co
+rocmscan
+ptx2llvm
+ptx2llvm.bin
+.DS_Store
