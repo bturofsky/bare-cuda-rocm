@@ -87,6 +87,24 @@ make doctor                       # toolchain + fixture audit
    exact per-target `EF_AMDGPU_MACH_*` flag + the kernel symbol, or the gate
    fails. Byte-level proof, not "it seemed to build."
 
+## What "bare" rules out — four structural guarantees
+
+- **No runtime API interception or hooking.** The v0 pipeline contains no
+  interception surface at all: it is a compiler lane (scanner → translator →
+  LLVM). Nothing watches or patches a driver; the hardware gate that
+  eventually loads `.co` files uses the vendor's own ROCm/HIP API directly.
+- **No interpreter, no per-call bytecode translation.** Kernels are
+  translated once, ahead of time, into native AMDGCN machine code. Launch
+  time loads an ELF — no translator exists on the execution path.
+- **No wrapper emulating the CUDA driver.** There is no emulation layer:
+  the artifacts are ordinary AMDGPU code objects, consumed by the vendor's
+  official loader (`hipModuleLoad`-class APIs in phase 2) exactly like any
+  natively-built ROCm binary.
+- **Unsupported PTX → hard-fail with the opcode named.** `ptx2llvm` exits 2
+  with the opcode on stderr (`unsupported PTX opcode: shfl.idx.b32` —
+  proven by the honesty test in the harness). A wrong translation is
+  structurally impossible; a silent slow path does not exist.
+
 ## Repository layout
 
 ```
