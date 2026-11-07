@@ -99,6 +99,13 @@ grep -q "mi210" build/targets.txt && grep -q "w7800" build/targets.txt && grep -
 grep -q "gfx90a" build/targets.txt && grep -q "gfx1101" build/targets.txt && grep -q "gfx1100" build/targets.txt \
   && ok "all three llvm CPUs mapped" || bad "cpu mapping incomplete"
 
+hr "ISA tuning ladder (F4/R3)"
+make --no-print-directory isa-tune > build/isa.txt 2>/dev/null
+check "make isa-tune runs (baseline + tuned code objects)" $?
+grep -q "ISA TUNING LADDER" build/isa.txt && ok "ladder report produced (machine-instruction counts)" || bad "no ladder report"
+grep -q "verdict" build/isa.txt && ok "verdict emitted (proxy metric — latency waits for the hardware gate)" || bad "no verdict"
+grep -q "VALIDATE OK" build/isa.txt && ok "tuned artifact passes ELF validation" || bad "tuned artifact failed validation"
+
 hr "summary"
 say "  passed: $PASS  failed: $FAIL"
 if [ "$FAIL" -eq 0 ]; then

@@ -32,6 +32,17 @@ fake anything).
 - [ ] RDNA3 cross-check: same suites on W7800 (gfx1101) — dual Wave32/Wave64
       behavior recorded
 
+## Phase 2.5 (shipped): the ISA tuning ladder — F4 in the family plan
+
+- [x] `make isa-tune` — baseline (-O2 codegen) vs tuned (`TARGET_TUNE`:
+      `-O3`, `-mattr` pinning) code objects from the same optimized IR,
+      both ELF-validated
+- [x] Machine-instruction measurement (`test/isa_report.sh`): mi210 297
+      instructions, w7800/w7900 146 — **honest tie on the v0 kernel**
+- [x] Tuning wins are deferred to Phase 3 on purpose: bigger kernels are
+      where codegen level changes scheduling; the ladder measures and
+      reports rather than claiming
+
 ## Phase 3: the deeper census
 
 The scanner's verdict orders this work — the measured worklist, not a

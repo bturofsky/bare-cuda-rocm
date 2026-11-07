@@ -98,6 +98,29 @@ back-end, fixtures, libzstd all present).
   `selp`) are named in the scanner's forward profile and hard-fail in the
   translator.
 
+## 9. ISA tuning ladder (F4/R3, measured this session)
+
+`make isa-tune` builds two code objects from the same optimized IR — llc
+default codegen vs the target's `TARGET_TUNE` (max codegen level, attrs
+pinned) — validates both through the ELF gate, and counts real machine
+instructions (`s_/v_/ds_/global_/flat_/exp_/image_` families) via
+`llvm-objdump -d`:
+
+| Target | Baseline (-O2 codegen) | Tuned | Verdict |
+|---|---|---|---|
+| mi210 (gfx90a) | 297 instructions / 3,192 B | 297 / 3,200 B (`-O3 -mattr=-xnack`) | honest tie on the v0 kernel |
+| w7800 (gfx1101) | 146 / 2,632 B | 146 / 2,632 B (`-O3`) | tie |
+| w7900 (gfx1100) | 146 / 2,632 B | 146 / 2,632 B (`-O3`) | tie |
+
+An honest tie is the correct v0 result: this kernel is straight-line
+control flow where codegen level cannot move scheduling. The ladder exists
+so that R4's census growth (loops, barriers, atomics — where `-O3`'s
+scheduling passes actually engage) is measured against a baseline from day
+one. Instruction count is declared a proxy metric; latency claims wait for
+the hardware gate (R6).
+
+Harness: 28/28 green (ISA ladder checks included).
+
 **Reproduce:** `make doctor && make test` (hardware-free, any machine with
-LLVM + AMDGPU target), `make aot-all` (all three targets), and
-`scripts/verify_mi210.sh` (arms itself on the ROCm host).
+LLVM + AMDGPU target), `make aot-all` (all three targets), `make isa-tune`
+(the ladder), and `scripts/verify_mi210.sh` (arms itself on the ROCm host).

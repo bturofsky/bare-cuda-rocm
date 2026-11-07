@@ -7,3 +7,5 @@ TARGET_WAVE      = 32 (dual Wave32/Wave64 — compiler picks per kernel)
 TARGET_LANES     = Wave32 preferred by the back-end; simdops use 32-lane groups
 TARGET_MULTI_GPU = single card; no RCCL lane
 TARGET_ROLE      = tertiary — largest RDNA3 workspace; same code path as W7800
+
+TARGET_TUNE      = -O3  # ISA ladder: max codegen level

@@ -33,7 +33,7 @@ RDOBJ := $(LLVM_BIN)/llvm-readobj
 
 BUILD := build/$(ACTIVE_TARGET)
 
-.PHONY: all targets select doctor scan aot aot-all test clean
+.PHONY: all targets select doctor scan aot aot-all isa-tune test clean
 
 all: doctor scan aot
 
@@ -74,6 +74,22 @@ aot: translator/ptx2llvm.bin $(BUILD)
 
 aot-all:
 	@for t in $(TARGETS); do echo "== target: $$t =="; $(MAKE) --no-print-directory TARGET=$$t aot || exit 1; done
+
+# F4/R3 — the ISA tuning ladder: same optimized IR, two codegen levels,
+# measured in real machine instructions. The ladder is per-target via
+# TARGET_TUNE in targets/*.mk.
+isa-tune: translator/ptx2llvm.bin $(BUILD)
+	@mkdir -p $(BUILD)
+	@./translator/ptx2llvm.bin fixtures/vectorAdd.ptx _Z9vectorAddPKfS0_Pfi > $(BUILD)/vectorAdd.ll
+	@$(OPT) -O2 -o $(BUILD)/vectorAdd.opt.ll $(BUILD)/vectorAdd.ll
+	@$(LLC) -march=amdgcn -mcpu=$(TARGET_LLVM_CPU) -filetype=obj \
+	    -o $(BUILD)/vectorAdd.co $(BUILD)/vectorAdd.opt.ll
+	@$(LLC) -march=amdgcn -mcpu=$(TARGET_LLVM_CPU) $(TARGET_TUNE) -filetype=obj \
+	    -o $(BUILD)/vectorAdd.tuned.co $(BUILD)/vectorAdd.opt.ll
+	@bash test/validate_codeobject.sh $(RDOBJ) $(BUILD)/vectorAdd.tuned.co \
+	    "$(TARGET_NAME)-tuned" "$(TARGET_GPU)" "$(TARGET_LLVM_CPU)"
+	@bash test/isa_report.sh "$(LLVM_BIN)/llvm-objdump" $(BUILD) \
+	    "$(TARGET_NAME)" "$(TARGET_LLVM_CPU)" "$(TARGET_TUNE)"
 
 translator/ptx2llvm.bin: translator/ptx2llvm.c translator/ptx2llvm_main.c
 	$(CC) -O2 -std=c11 -Wall -Wextra -Werror -o $@ translator/ptx2llvm.c translator/ptx2llvm_main.c
