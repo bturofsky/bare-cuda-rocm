@@ -56,6 +56,15 @@ wishlist:
 - [ ] RCCL collectives over the Infinity Fabric pair on the 4× MI210 stack —
       the multi-GPU lane the Metal sibling never needed
 
+## R7 (roadmap): the source lane
+
+Unmodified CUDA C++ source compilation (the breadth that lets
+llama.cpp/GROMACS/AMReX-class applications build against the layer):
+`hipify-clang`/`hipify-perl` rewrite CUDA-isms to HIP on the ROCm host,
+`hipcc` compiles to native code objects — reusing our scanner for the
+feasibility census and our element-verified harness for the gate. Host-gated
+(R1 hardware first); staged here honestly rather than faked.
+
 ## Phase 4: the family bridge
 
 - [ ] shared harness format with Bare CUDA Metal: one spec → both backends,

@@ -24,9 +24,12 @@ fi
 GPU=$("$ROCM_SMI" --showproductname --showgpuid 2>/dev/null | grep -m1 "Card series" || echo unknown)
 echo "  ROCm host detected — GPU: $GPU"
 echo "  planned suites (ROADMAP phase 2):"
-echo "    1. host-load: hipModuleLoad of build/mi210/vectorAdd.co + launch vs CPU truth"
+echo "    1. host-load: hipModuleLoad(build/mi210/vectorAdd.co) + launch vs CPU truth"
 echo "    2. wave64 census: grid-stride + shared-memory reduction on Wave64 lanes"
 echo "    3. zero-copy: hipHostMalloc path vs device copy"
 echo "    4. RCCL multi-GPU: AllReduce ring over the Infinity Fabric pair"
+echo "  provenance receipts (R1 contract): every launch writes one JSON line —"
+echo "    {device, kernel, grid, block, gpu_start, gpu_end, status, artifact}"
+echo "    — validated by the suite before any result claim is recorded."
 echo "  implementation lands with the host (ROADMAP.md phase 2) — nothing to fake here."
 exit 0
