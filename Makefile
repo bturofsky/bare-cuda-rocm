@@ -33,9 +33,9 @@ RDOBJ := $(LLVM_BIN)/llvm-readobj
 
 BUILD := build/$(ACTIVE_TARGET)
 
-.PHONY: all targets select doctor scan aot aot-all isa-tune test clean
+.PHONY: all targets select doctor scan aot aot-all isa-tune perf-gate negative test clean
 
-all: doctor scan aot
+all: doctor scan aot isa-tune perf-gate
 
 targets:
 	@echo "Bare CUDA ROCm — target pull-down"
@@ -90,6 +90,15 @@ isa-tune: translator/ptx2llvm.bin $(BUILD)
 	    "$(TARGET_NAME)-tuned" "$(TARGET_GPU)" "$(TARGET_LLVM_CPU)"
 	@bash test/isa_report.sh "$(LLVM_BIN)/llvm-objdump" $(BUILD) \
 	    "$(TARGET_NAME)" "$(TARGET_LLVM_CPU)" "$(TARGET_TUNE)"
+
+# F5 — ISA-proxy performance report: translated kernel vs native-quality
+# baseline, machine-instruction counts (static, non-gating until R6).
+perf-gate: translator/ptx2llvm.bin
+	@bash test/perf_gate.sh
+
+# Honest-error contract under hostile inputs (translator + scanner).
+negative: translator/ptx2llvm.bin scan/rocmscan
+	@bash test/negative_rocm.sh
 
 translator/ptx2llvm.bin: translator/ptx2llvm.c translator/ptx2llvm_main.c
 	$(CC) -O2 -std=c11 -Wall -Wextra -Werror -o $@ translator/ptx2llvm.c translator/ptx2llvm_main.c

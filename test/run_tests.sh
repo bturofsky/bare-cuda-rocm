@@ -106,6 +106,17 @@ grep -q "ISA TUNING LADDER" build/isa.txt && ok "ladder report produced (machine
 grep -q "verdict" build/isa.txt && ok "verdict emitted (proxy metric — latency waits for the hardware gate)" || bad "no verdict"
 grep -q "VALIDATE OK" build/isa.txt && ok "tuned artifact passes ELF validation" || bad "tuned artifact failed validation"
 
+hr "ISA-proxy performance report (F5, static)"
+LLVM_BIN="$(LLVM_BIN)" make --no-print-directory perf-gate > build/perfproxy.txt 2>/dev/null
+check "perf-gate runs (baseline + translated artifacts build)" $?
+grep -q "ratio" build/perfproxy.txt && ok "static ratio reported (<= 2.0x GPU-clock gate fires at R6)" || bad "no ratio"
+
+hr "negative-test inventory (honest-error contract)"
+bash test/negative_rocm.sh > build/negrocm.txt 2>&1
+rc=$?
+grep -c "PASS" build/negrocm.txt | head -1 | sed 's/^/    passed cases: /'
+[ $rc -eq 0 ] && ok "all hostile inputs produce the named hard-fail contract" || bad "negative inventory failed"
+
 hr "summary"
 say "  passed: $PASS  failed: $FAIL"
 if [ "$FAIL" -eq 0 ]; then
